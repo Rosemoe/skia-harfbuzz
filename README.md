@@ -42,5 +42,7 @@ The following APIs are patched to work with harfbuzz:
 * `Canvas.drawString`
 * `Canvas.drawSimpleText`
 * `Font.measureText`
-
-Note that measuring with paint is not supported, the given paint is ignored. Minor font settings (e.g. embolden) not supported.
+## Limitations
+There are some limitations that you may need to take care when using:
+* `Paint` argument in patched `Font.measureText` is not supported. This ignores stroke width and path effect, etc. 
+* Minor font settings (e.g. embolden) not considered.

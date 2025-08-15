@@ -129,6 +129,6 @@ class SkiaHarfbuzzFont:
         if result[0] is None:
             return
         blob, text_width = result
-        draw_x = calculate_skia_x(x, text_width, anchor_x, anchor_y)
+        draw_x = calculate_skia_x(x, text_width, anchor_x)
         draw_y = calculate_skia_y(y, self.skia_font, anchor_y)
         canvas.drawTextBlob(blob, draw_x, draw_y, paint)

@@ -2,9 +2,9 @@ import uharfbuzz as hb
 import skia as sk
 
 
-def shape_text_skhf(text: str | hb.Buffer, skia_font: sk.Font, harfbuzz_font: hb.Font,
-                    size_precision: int, features: dict[str, bool] | None = None,
-                    build_blob: bool = False, bounding_box: sk.Rect | None = None) -> tuple[sk.TextBlob | None, float]:
+def shape_text_with_harfbuzz(text: str | hb.Buffer, skia_font: sk.Font, harfbuzz_font: hb.Font,
+                             size_precision: int, features: dict[str, bool] | None = None,
+                             build_blob: bool = False, bounding_box: sk.Rect | None = None) -> tuple[sk.TextBlob | None, float]:
     if features is None:
         features = {}
     if isinstance(text, hb.Buffer):
@@ -38,7 +38,6 @@ def shape_text_skhf(text: str | hb.Buffer, skia_font: sk.Font, harfbuzz_font: hb
             extents = harfbuzz_font.get_glyph_extents(gid)
             gl, gt = curr_advance_x + extents.x_bearing / size_precision, curr_advance_y - extents.y_bearing / size_precision
             gr, gb = gl + extents.width / size_precision, gt - extents.height / size_precision
-            print(gl, gt)
             l, t = min(l, gl), min(t, gt)
             r, b = max(r, gr), max(b, gb)
         curr_advance_x += x_advance

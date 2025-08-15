@@ -1,13 +1,9 @@
 import uharfbuzz as hb
 import skia as sk
-from typing import Literal
 from .config import get_font_size_precision
 from .shaping import shape_text_skhf
-from .util import calculate_skia_x, calculate_skia_y
+from .util import AnchorTypeX, AnchorTypeY, calculate_skia_x, calculate_skia_y
 
-
-AnchorTypeX = Literal['left', 'center', 'right']
-AnchorTypeY = Literal['baseline', 'top', 'center', 'bottom']
 
 
 class SkiaHarfbuzzTypeface:

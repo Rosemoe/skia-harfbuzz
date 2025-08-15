@@ -1,16 +1,15 @@
+__all__ = [
+    'patch_skia', 'unpatch_skia',
+    'set_default_anchor_type_x', 'get_default_anchor_type_x',
+    'set_default_anchor_type_y', 'get_default_anchor_type_y',
+]
+
 import contextvars
 import weakref
 import skia as sk
 import uharfbuzz as hb
 from threading import Lock
 from .font import SkiaHarfbuzzTypeface, AnchorTypeX, AnchorTypeY
-
-
-__all__ = [
-    'patch_skia', 'unpatch_skia',
-    'set_default_anchor_type_x', 'get_default_anchor_type_x',
-    'set_default_anchor_type_y', 'get_default_anchor_type_y',
-]
 
 
 _is_patched = False

@@ -1,8 +1,9 @@
-from .font import AnchorTypeX, AnchorTypeY
+from typing import Literal
 from skia import Font
 
 
-__all__ = ['calculate_skia_x', 'calculate_skia_y']
+AnchorTypeX = Literal['left', 'center', 'right']
+AnchorTypeY = Literal['baseline', 'top', 'center', 'bottom']
 
 
 def calculate_skia_x(x: float, text_width: float, anchor_x: AnchorTypeX) -> float:

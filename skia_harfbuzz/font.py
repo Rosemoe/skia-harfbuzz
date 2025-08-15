@@ -42,7 +42,7 @@ class SkiaHarfbuzzTypeface:
         harfbuzz_typeface = hb.Face(harfbuzz_blob, index)
         return cls(skia_typeface, harfbuzz_typeface)
 
-    def create_font(self, size: float = 20.0, scale_x: float = 1.0, skew_x: float = 0.0,
+    def create_font(self, size: float = 12.0, scale_x: float = 1.0, skew_x: float = 0.0,
                     features: dict[str, bool] | None = None) -> "SkiaHarfbuzzFont":
         """
         Create font with given size, scale X and skew X.

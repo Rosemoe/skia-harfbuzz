@@ -3,6 +3,7 @@ import skia as sk
 from typing import Literal
 from .config import get_font_size_precision
 from .shaping import shape_text_skhf
+from .util import calculate_skia_x, calculate_skia_y
 
 
 AnchorTypeX = Literal['left', 'center', 'right']
@@ -13,6 +14,7 @@ class SkiaHarfbuzzTypeface:
     """
     Typeface object maintaining both Skia and Harfbuzz typeface object.
     """
+
     def __init__(self, skia_typeface: sk.Typeface, harfbuzz_typeface: hb.Face):
         self.skia_typeface = skia_typeface
         self.harfbuzz_typeface = harfbuzz_typeface
@@ -50,7 +52,7 @@ class SkiaHarfbuzzTypeface:
         :param size: Font size in pixels (typographic height of text).
         :param scale_x: Text horizontal scale.
         :param skew_x: Additional shear on x-axis relative to y-axis.
-        :param features: Optional features dict for font features. By default, kerning and ligatures are enabled.
+        :param features: Optional features dict for font features. None for default font features.
         :return: Generated SkiaHarfbuzzFont.
         """
         size_precision = get_font_size_precision()
@@ -81,41 +83,52 @@ class SkiaHarfbuzzFont:
         self._features = features if features is not None else {}
 
     def set_font_features(self, features: dict[str, bool] | None = None):
+        """
+        Set the font feature switches.
+
+        For more information, please view https://github.com/opensource-opentype/features/blob/master/otf-features.md
+        and https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_fonts/OpenType_fonts_guide#the_font_features
+
+        :param features: Optional features dict for font features. None for default font features.
+        :return:
+        """
         self._features = {} if features is None else features
 
     def get_font_features(self) -> dict[str, bool]:
+        """
+        Get the font feature switches.
+        """
         return self._features
 
     def measure_text(self, text: str) -> float:
+        """
+        Measure font text width.
+        :param text: Text to measure.
+        :return: Width of text.
+        """
         return shape_text_skhf(text, self.skia_font, self.harfbuzz_font, self.size_precision,
                                self._features, build_blob=False)[1]
 
     def draw_text(self, canvas: sk.Canvas, text: str, x: float, y: float, paint: sk.Paint,
                   anchor_x: AnchorTypeX = 'left', anchor_y: AnchorTypeY = 'baseline'):
+        """
+        Draw text on canvas, with given coordinates and anchor types.
+
+        See `AnchorTypeX` and `AnchorTypeY` for acceptable anchor types.
+
+        :param canvas: Canvas object.
+        :param text: Text to draw.
+        :param x: X coordinate of text.
+        :param y: Y coordinate of text.
+        :param paint: Paint object for drawing text.
+        :param anchor_x: Anchor type of X coordinate.
+        :param anchor_y: Anchor type of Y coordinate.
+        """
         result = shape_text_skhf(text, self.skia_font, self.harfbuzz_font, self.size_precision,
                                  self._features, build_blob=True)
         if result[0] is None:
             return
         blob, text_width = result
-        draw_x = x
-        draw_y = y
-        # Compute X
-        if anchor_x != 'left':
-            if anchor_x == 'center':
-                draw_x = x - text_width / 2
-            elif anchor_x == 'right':
-                draw_x = x - text_width
-            else:
-                raise ValueError(f'anchor_x {anchor_x} not supported')
-        # Compute Y
-        if anchor_y != 'baseline':
-            font = self.skia_font
-            if anchor_y == 'top':
-                draw_y = y - font.getMetrics().fAscent
-            elif anchor_y == 'center':
-                draw_y = y - font.getSpacing() / 2 - font.getMetrics().fAscent
-            elif anchor_y == 'bottom':
-                draw_y = y - font.getSpacing() - font.getMetrics().fAscent
-            else:
-                raise ValueError(f'anchor_y {anchor_y} not supported')
+        draw_x = calculate_skia_x(x, text_width, anchor_x, anchor_y)
+        draw_y = calculate_skia_y(y, self.skia_font, anchor_y)
         canvas.drawTextBlob(blob, draw_x, draw_y, paint)

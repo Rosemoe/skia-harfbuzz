@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skia-harfbuzz"
+version = "0.1.0"
+description = "Utilities for skia-python to shape and draw text with harfbuzz"
+authors = [{name = "Rosemoe", email = "rosemoe168@gmail.com"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+dependencies = [
+    "skia-python >= 87.7",
+    "uharfbuzz >= 0.51.0"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Topic :: Multimedia :: Graphics",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+]
+
+
+[project.urls]
+Homepage = "https://github.com/Rosemoe/skia-hardfbuzz"

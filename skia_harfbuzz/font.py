@@ -1,7 +1,7 @@
 import uharfbuzz as hb
 import skia as sk
 from .config import get_font_size_precision
-from .shaping import shape_text_skhf
+from .shaping import shape_text_with_harfbuzz
 from .util import AnchorTypeX, AnchorTypeY, calculate_skia_x, calculate_skia_y
 
 
@@ -104,8 +104,8 @@ class SkiaHarfbuzzFont:
         :param text: Text to measure.
         :return: Advance width of text.
         """
-        return shape_text_skhf(text, self.skia_font, self.harfbuzz_font, self.size_precision,
-                               self._features, build_blob=False, bounding_box=bounding_box)[1]
+        return shape_text_with_harfbuzz(text, self.skia_font, self.harfbuzz_font, self.size_precision,
+                                        self._features, build_blob=False, bounding_box=bounding_box)[1]
 
     def draw_text(self, canvas: sk.Canvas, text: str, x: float, y: float, paint: sk.Paint,
                   anchor_x: AnchorTypeX = 'left', anchor_y: AnchorTypeY = 'baseline'):
@@ -122,8 +122,8 @@ class SkiaHarfbuzzFont:
         :param anchor_x: Anchor type of X coordinate.
         :param anchor_y: Anchor type of Y coordinate.
         """
-        result = shape_text_skhf(text, self.skia_font, self.harfbuzz_font, self.size_precision,
-                                 self._features, build_blob=True)
+        result = shape_text_with_harfbuzz(text, self.skia_font, self.harfbuzz_font, self.size_precision,
+                                          self._features, build_blob=True)
         if result[0] is None:
             return
         blob, text_width = result

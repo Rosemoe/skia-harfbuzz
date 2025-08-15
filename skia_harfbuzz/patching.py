@@ -9,7 +9,7 @@ import weakref
 import skia as sk
 import uharfbuzz as hb
 from threading import Lock
-from .font import SkiaHarfbuzzTypeface, AnchorTypeX, AnchorTypeY
+from .font import SkiaHarfbuzzTypeface, SkiaHarfbuzzFont, AnchorTypeX, AnchorTypeY
 
 
 _is_patched = False
@@ -79,6 +79,16 @@ class ExtraDataManager[TargetType, DataType]:
 _typeface_extra_data = ExtraDataManager[sk.Typeface, hb.Face]()
 
 
+def _get_skhb_font_for(font: sk.Font) -> SkiaHarfbuzzFont | None:
+    skia_typeface: sk.Typeface = font.getTypeface()
+    harfbuzz_typeface = _typeface_extra_data[skia_typeface]
+    if harfbuzz_typeface is None:
+        return None
+    typeface = SkiaHarfbuzzTypeface(skia_typeface, harfbuzz_typeface)
+    skhb_font = typeface.create_font(font.getSize(), font.getScaleX(), font.getSkewX())
+    return skhb_font
+
+
 @register_patch(sk.Typeface, 'MakeFromData')
 def make_typeface_from_data(data: bytes, index: int = 0):
     typeface = SkiaHarfbuzzTypeface.create_from_data(data, index)
@@ -92,12 +102,12 @@ def make_typeface_from_file(path: str, index: int = 0):
     _typeface_extra_data[typeface.skia_typeface] = typeface.harfbuzz_typeface
     return typeface.skia_typeface
 
+
 @register_patch(sk.Canvas, 'drawString')
 @register_patch(sk.Canvas, 'drawSimpleText')
 def canvas_draw_string(canvas: sk.Canvas, text: str, x: float, y: float, font: sk.Font, paint: sk.Paint):
-    skia_typeface: sk.Typeface = font.getTypeface()
-    harfbuzz_typeface = _typeface_extra_data[skia_typeface]
-    if harfbuzz_typeface is None:
+    skhb_font = _get_skhb_font_for(font)
+    if skhb_font is None:
         # must call the real drawString/drawSimpleText here to avoid recursion
         draw_string_func = getattr(sk.Canvas, '_real_drawString', None)
         if draw_string_func is None:
@@ -105,9 +115,15 @@ def canvas_draw_string(canvas: sk.Canvas, text: str, x: float, y: float, font: s
         else:
             draw_string_func(canvas, text, x, y, font, paint)
         return
-    typeface = SkiaHarfbuzzTypeface(skia_typeface, harfbuzz_typeface)
-    skhf_font = typeface.create_font(font.getSize(), font.getScaleX(), font.getSkewX())
-    skhf_font.draw_text(canvas, text, x, y, paint, anchor_x=_anchor_type_x, anchor_y=_anchor_type_y)
+    skhb_font.draw_text(canvas, text, x, y, paint, anchor_x=_anchor_type_x, anchor_y=_anchor_type_y)
+
+
+@register_patch(sk.Font, 'measureText')
+def font_measure_text(font: sk.Font, text: str, encoding: sk.TextEncoding = sk.kUTF8, bounds: sk.Rect | None = None, paint: sk.Paint = None) -> float:
+    skhb_font = _get_skhb_font_for(font)
+    if skhb_font is None:
+        return font.measureText(text, encoding, bounds, paint)
+    return skhb_font.measure_text(text=text, bounding_box=bounds)
 
 
 def patch_skia():

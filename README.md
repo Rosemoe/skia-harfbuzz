@@ -1,5 +1,14 @@
 # skia-harfbuzz
 A Python library that helps to draw text in skia-python with harfbuzz shaping engine.
+## Effect Preview
+The library integrates with harfbuzz to support font features like kerning and ligatures.
+### Kerning
+Kerning refers to the spacing between specific glyph pairings.
+![Kerning: GeosansLight](/images/kerning.png)
+### Ligatures
+Ligatures are glyphs that replace two or more separate glyphs in order to represent them more smoothly (from a spacing or aesthetic perspective).
+Some ligatures are necessary in fonts.
+![Ligatures: JetBrainsMono](/images/ligatures.png)
 ## Usage
 ### Use Library API
 #### Create Typeface and Font

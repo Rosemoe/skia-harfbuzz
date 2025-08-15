@@ -96,14 +96,16 @@ class SkiaHarfbuzzFont:
         """
         return self._features
 
-    def measure_text(self, text: str) -> float:
+    def measure_text(self, text: str, bounding_box: sk.Rect | None = None) -> float:
         """
-        Measure font text width.
+        Measure text advance width.
+
+        :param bounding_box: Result bounding box relative to (0, 0) if not None
         :param text: Text to measure.
-        :return: Width of text.
+        :return: Advance width of text.
         """
         return shape_text_skhf(text, self.skia_font, self.harfbuzz_font, self.size_precision,
-                               self._features, build_blob=False)[1]
+                               self._features, build_blob=False, bounding_box=bounding_box)[1]
 
     def draw_text(self, canvas: sk.Canvas, text: str, x: float, y: float, paint: sk.Paint,
                   anchor_x: AnchorTypeX = 'left', anchor_y: AnchorTypeY = 'baseline'):

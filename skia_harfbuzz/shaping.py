@@ -4,7 +4,7 @@ import skia as sk
 
 def shape_text_skhf(text: str | hb.Buffer, skia_font: sk.Font, harfbuzz_font: hb.Font,
                     size_precision: int, features: dict[str, bool] | None = None,
-                    build_blob: bool = False) -> tuple[sk.TextBlob | None, float]:
+                    build_blob: bool = False, bounding_box: sk.Rect | None = None) -> tuple[sk.TextBlob | None, float]:
     if features is None:
         features = {}
     if isinstance(text, hb.Buffer):
@@ -16,6 +16,10 @@ def shape_text_skhf(text: str | hb.Buffer, skia_font: sk.Font, harfbuzz_font: hb
 
     hb.shape(harfbuzz_font, buf, features)
 
+    if bounding_box:
+        bounding_box.setEmpty()
+
+    l, t, r, b = 0, 0, 0, 0
     # Assuming Y = 0 -> Top, X = 0 -> Left
     curr_advance_x = 0.0
     curr_advance_y = 0.0
@@ -30,9 +34,18 @@ def shape_text_skhf(text: str | hb.Buffer, skia_font: sk.Font, harfbuzz_font: hb
             y_offset = pos.y_offset * multiplier
             glyphs.append(gid)
             positions.append(sk.Point(curr_advance_x + x_offset, curr_advance_y + y_offset))
+        if bounding_box:
+            extents = harfbuzz_font.get_glyph_extents(gid)
+            gl, gt = curr_advance_x + extents.x_bearing / size_precision, curr_advance_y - extents.y_bearing / size_precision
+            gr, gb = gl + extents.width / size_precision, gt - extents.height / size_precision
+            print(gl, gt)
+            l, t = min(l, gl), min(t, gt)
+            r, b = max(r, gr), max(b, gb)
         curr_advance_x += x_advance
         curr_advance_y += y_advance
 
+    if bounding_box:
+        bounding_box.setLTRB(l, t, r, b)
     if not build_blob:
         return None, curr_advance_x
 

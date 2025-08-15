@@ -53,7 +53,7 @@ class SkiaHarfbuzzTypeface:
         """
         size_precision = get_font_size_precision()
         harfbuzz_font = hb.Font(self.harfbuzz_typeface)
-        harfbuzz_font.synthetic_slant = skew_x
+        harfbuzz_font.synthetic_slant = -skew_x
         harfbuzz_font.scale = (int(size * size_precision * scale_x), int(size * size_precision))
         return SkiaHarfbuzzFont(sk.Font(self.skia_typeface, size, scale_x, skew_x),
                                 harfbuzz_font, size_precision, features)

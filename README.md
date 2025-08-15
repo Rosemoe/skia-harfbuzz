@@ -29,13 +29,13 @@ AnchorTypeX: `left`, `center`, `right`
 
 AnchorTypeY: `baseline`, `top`, `center`, `bottom`
 ### Patch Skia
-Patching skia to override typeface loading and basic text rendering. And you can continue with you old code.
+Patch skia to override typeface loading and basic text rendering. And you can continue with you old code.
 ```python
 from skia_harfbuzz import patch_skia
 
 patch_skia()
 ```
-After patching, each skia typeface created by `Typeface.MakeFromPath` or `Typeface.MakeFromData` will manage its companion harfbuzz typeface.
+After patching, skia typefaces created by `Typeface.MakeFromPath` or `Typeface.MakeFromData` will manage its companion harfbuzz typeface.
 The companion harfbuzz typeface is deleted when the typeface is garbage collected.
 
 The following APIs are patched to work with harfbuzz:

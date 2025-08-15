@@ -27,4 +27,4 @@ classifiers = [
 
 
 [project.urls]
-Homepage = "https://github.com/Rosemoe/skia-hardfbuzz"
+Homepage = "https://github.com/Rosemoe/skia-harfbuzz"
